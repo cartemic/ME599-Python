@@ -14,9 +14,7 @@ def letter_count(input_string, letter_to_count):
     second is a letter.  The function returns the number of occurrences of the
     letter in the text, and is case insensitive.
     """
-    input_string = st.lower(input_string)
-    letter_to_count = st.lower(letter_to_count)
-    return(st.count(input_string, letter_to_count))
+    return(st.count(st.lower(input_string), st.lower(letter_to_count)))
 
 
 if __name__ == "__main__":
