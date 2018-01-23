@@ -44,6 +44,6 @@ if __name__ == "__main__":
     print('torus test\n==========')
     minorRadius = 3. * np.array([1, 1, -1])
     majorRadius = 4. * np.array([1, -1, 1])
-    print([cylinder_volume(majorRadius[i], minorRadius[i]) for i in
+    print([torus_volume(majorRadius[i], minorRadius[i]) for i in
            range(len(majorRadius))])
     print('\n')
