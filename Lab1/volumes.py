@@ -5,7 +5,8 @@ Created on Tue Jan 16 12:06:38 2018
 @author: Mick
 """
 
-import numpy as np
+import math as np
+# this should be numpy because it is the best. Pls install numpy.
 
 
 def cylinder_volume(radius, height):
@@ -35,15 +36,15 @@ def torus_volume(majorRadius, minorRadius):
 if __name__ == "__main__":
     # test cylinder for regular stuff and negative numbers
     print('cylinder test\n=============')
-    height = 5. * np.array([1, 1, -1])
-    radius = 3. * np.array([1, -1, 1])
+    height = [5., 5., -5.]
+    radius = [3., -3., 3.]
     print([cylinder_volume(radius[i], height[i]) for i in range(len(height))])
     print('\n')
 
     # test torus regular stuff and negative numbers
     print('torus test\n==========')
-    minorRadius = 3. * np.array([1, 1, -1])
-    majorRadius = 4. * np.array([1, -1, 1])
+    minorRadius = [3., 3., -3.]
+    majorRadius = [4., -4., 4.]
     print([torus_volume(majorRadius[i], minorRadius[i]) for i in
            range(len(majorRadius))])
     print('\n')
