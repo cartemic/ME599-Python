@@ -12,6 +12,7 @@ def mean_filter(inputList, filterWidth=3):
     elements in the list is less than the filter width, this is not possible
     and the input list is returned unaltered.
     """
+    filterWidth = int(filterWidth)
     numEl = len(inputList)
     if numEl < filterWidth:
         # yell at the fool who sent you such a short list
@@ -49,6 +50,7 @@ def median_filter(inputList, filterWidth=3):
     elements in the list is less than the filter width, this is not possible
     and the input list is returned unaltered.
     """
+    filterWidth = int(filterWidth)
     numEl = len(inputList)
     if numEl < filterWidth:
         # yell at the fool who sent you such a short list
