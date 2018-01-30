@@ -25,6 +25,8 @@ def sum_r(numberList):
     """
     if len(numberList) > 1:
         return(numberList[0] + sum_r(numberList[1:]))
+    elif len(numberList) == 0:
+        return 0
     else:
         return numberList[0]
 
@@ -43,6 +45,7 @@ if __name__ == "__main__":
     print('ints:   {0}'.format(sum(listInts)))
     print('floats: {0}'.format(sum(listFloats)))
     print('mixed:  {0}'.format(sum(listMixed)))
+    print('mixed:  {0}'.format(sum([])))
     print('')
 
     print('test sum_i()')
@@ -50,6 +53,7 @@ if __name__ == "__main__":
     print('ints:   {0}'.format(sum_i(listInts)))
     print('floats: {0}'.format(sum_i(listFloats)))
     print('mixed:  {0}'.format(sum_i(listMixed)))
+    print('mixed:  {0}'.format(sum_i([])))
     print('')
 
     print('test sum_r()')
@@ -57,4 +61,5 @@ if __name__ == "__main__":
     print('ints:   {0}'.format(sum_r(listInts)))
     print('floats: {0}'.format(sum_r(listFloats)))
     print('mixed:  {0}'.format(sum_r(listMixed)))
+    print('mixed:  {0}'.format(sum_r([])))
     print('')
