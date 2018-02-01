@@ -9,7 +9,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from random import random
 from msd import MassSpringDamper
-import time
+import timeit
 
 
 plt.close('all')
@@ -56,31 +56,40 @@ plt.ylabel('Position')
 plt.title('Mass Spring Damper System')
 plt.show()
 
+
 # %% Problem 4: sort and sum times
 length = np.power(10, xrange(7))
 time_sort = []
 time_sum = []
+
+# choose the number of times to repeat in timeit function
+num_repeats = 20
+
 for l in length:
     print('List length {0}'.format(l))
     theList = [random() for i in xrange(l)]
 
-    # test functions
-    time_0 = time.time()
-    sorted(theList)
-    time_1 = time.time()
-    sum(theList)
-    time_2 = time.time()
+    # test functions and collect average execution time
+    sort_timer = timeit.Timer('sorted(theList)',
+                              'from __main__ import theList')\
+                              .timeit(num_repeats)/num_repeats
+    sum_timer = timeit.Timer('sum(theList)',
+                             'from __main__ import theList')\
+                             .timeit(num_repeats)/num_repeats
 
-    # output results
-    time_sort.append(time_1-time_0)
-    time_sum.append(time_2-time_1)
-    print('Sorted time: {:0.25e} s'.format(time_1-time_0))
-    print('Sum time:    {:0.25e} s'.format(time_2-time_1))
+    # append results and output to console
+    time_sort.append(sort_timer)
+    time_sum.append(sum_timer)
+    print('Sorted time: {:0.3e} s'.format(sort_timer))
+    print('Sum time:    {:0.3e} s'.format(sum_timer))
     print('')
+
+# plot results
 plt.figure('Problem 4')
-plt.semilogx(length, time_sort, label='sorted()')
-plt.semilogx(length, time_sum, label='sum()')
+plt.loglog(length, time_sort, 'd-', label='sorted()', linewidth=0.25,
+           markerfacecolor='none')
+plt.loglog(length, time_sum, 'x-', label='sum()', linewidth=0.25)
 plt.legend()
 plt.xlabel('List length')
 plt.ylabel('Time')
-plt.title('Comparison of sorted() O(log(n)) and sum() O(n)')
+plt.title('Comparison of sorted() and sum()')
