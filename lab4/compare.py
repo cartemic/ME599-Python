@@ -10,32 +10,28 @@ import os.path
 import string
 
 
-def total_words(my_file):
+def comparison(my_file):
+    word_count = 0
+    words = set()
     with open(my_file, 'r') as f:
-        word_count = 0
         for line in f:
-            word_count += len(line
-                              .strip()
-                              .lower()
-                              .translate(None, string.punctuation)
-                              .split())
-            print(word_count)
-            print(line)
-
-
-total_words('test.txt')
-
-
-def unique_words(my_file):
-    return 1
+            line_words = line\
+                          .strip()\
+                          .lower()\
+                          .translate(string.maketrans("", ""),
+                                     string.punctuation)\
+                          .split()
+            [words.add(w) for w in line_words]
+            word_count += len(line_words)
+    return word_count, len(words)
 
 
 def words_only_in(my_file):
-    return 2
+    return None
 
 
 def words_in_both(my_files):
-    return 3
+    return None
 
 
 if len(sys.argv) < 3:
@@ -52,15 +48,16 @@ else:
     exist_1 = os.path.isfile(files[0])
     exist_2 = os.path.isfile(files[1])
     if exist_1 and exist_2:
-        for f in files:
+        file_counts = [comparison(f) for f in files]
+        for i, f in enumerate(files):
             print(f)
-            print('    {0} words'.format(total_words(f)))
-            print('    unique: {0}'.format(unique_words(f)))
+            print('    {0} words'.format(file_counts[i][0]))
+            print('    unique: {0}'.format(file_counts[i][1]))
 
         for f in files:
             print('Only {0:s}: {1}'.format(f, words_only_in(f)))
 
-        print('Both files:',words_in_both(files))
+#        print('Both files:',words_in_both(files))
     elif not exist_1 and not exist_2:
         print('Both of your filenames are jacked up.')
     elif not exist_1:
