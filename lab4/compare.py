@@ -83,5 +83,5 @@ Only test2.txt 9
 Both files: 8
 
 
-total wall time for war and peace and words comparison ~750ms << 10s :)
+total wall time for war and peace and words comparison ~500-800ms << 10s :)
 """
