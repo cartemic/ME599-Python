@@ -24,6 +24,16 @@ def count_grades(percentage_list, grade_scheme):
     return grades, whiners
 
 
+def new_grades(percentage_list, grade_scheme):
+    grades = dict([letter, 0] for letter in grade_scheme.keys())
+    for grade in grade_scheme.keys():
+        for i in xrange(grade_scheme[grade]):
+            grades[grade] += 1
+    grades['F'] = len(percentage_list) - sum(grades.values())
+    return grades
+
+
+# get some data
 data = pd.read_csv('grades.csv', sep=',').apply(pd.to_numeric, errors='coerce')
 
 # calculate assignment percentages
@@ -59,8 +69,16 @@ normal_grade_scheme = {'A': [100.1, 94., 0],
                        'D-': [64., 61., 10],
                        'F': [61., 0., 11]}
 
-# calculate grades using normal grading limits
+# define modified grading limits
+num_students = len(data)
+new_grade_scheme = {'A': int(num_students * 0.1),
+                    'B': int(num_students * 0.2),
+                    'C': int(num_students * 0.3),
+                    'D': int(num_students * 0.3)}
+
+# calculate grades
 grades, whiners = count_grades(final_grades.values, normal_grade_scheme)
+new_grades = new_grades(final_grades.values, new_grade_scheme)
 
 # print statistics
 print('Average Score:      {0:.2f}'.format(final_avg))
@@ -85,3 +103,9 @@ print('Usual grading scheme:')
 # prepare the floodgates
 print()
 print('{0} students will complain about their grade'.format(whiners))
+
+# properly sort and print grade counts using new grade scheme
+print()
+print('New grading scheme:')
+[print('{0:2s}: {1:6.0f}'.format(grade, new_grades[grade]))
+ for (grade, grade_range) in sorted(new_grades.items())]
