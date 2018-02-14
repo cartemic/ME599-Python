@@ -10,8 +10,15 @@ import numpy as np
 
 class Complex:
     def __init__(self, real_part=0, imaginary_part=0):
-        self.re = real_part
-        self.im = imaginary_part
+        try:
+            float(real_part)
+            float(imaginary_part)
+            self.re = real_part
+            self.im = imaginary_part
+        except (ValueError, TypeError) as e:
+            self.re = np.nan
+            self.im = np.nan
+            print('Bad input, try again (' + e.__class__.__name__ + ')')
 
     def __str__(self):
         if self.im < 0:
@@ -28,8 +35,12 @@ if __name__ == '__main__':
     b = Complex(2)
     c = Complex()
     d = Complex(1, -2)
+    e = Complex('a')
+    f = Complex([1, 4])
 
     print(a)
     print(b)
     print(c)
     print(d)
+    print(e)
+    print(f)
