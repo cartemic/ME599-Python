@@ -7,6 +7,7 @@ Created on Tue Feb 27 15:51:21 2018
 
 import numpy as np
 import random
+from matplotlib import pyplot as plt
 
 
 def integrate(f, a, b, intervals=100):
@@ -80,6 +81,21 @@ def tester_mc(start, end, bc, steps):
         print
 
 
+def plot_results(start, end):
+    functions = [integrate, integrate_mc]
+    int_args = [[parabola, start, end, None],
+                [parabola, start, end, (0, 0), None]]
+    steps = np.power(2, np.array(range(7, 20)))
+    analytical = end**3/3 - start**3/3
+    for i, integrator in enumerate(functions):
+        error = []
+        for s in steps:
+            int_args[i][-1] = s
+            numerical = integrator(*tuple(int_args[i]))
+            error.append(abs(analytical - numerical)/analytical)
+        plt.semilogx(steps, error, label=integrator.__name__)
+
+
 if __name__ == '__main__':
     # enter test parameters
     start = 0.
@@ -97,3 +113,5 @@ if __name__ == '__main__':
     print('MONTE CARLO')
     print('===========')
     tester_mc(start, stop, (0, 1), steps)
+    
+    plot_results(0, 5)
