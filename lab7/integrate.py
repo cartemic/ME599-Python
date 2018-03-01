@@ -10,33 +10,72 @@ import random
 from matplotlib import pyplot as plt
 
 
+plt.close('all')
+
+
 def integrate(f, a, b, intervals=100):
-    integral = 0.
-    delta = (float(b) - float(a))/(float(intervals) - 1)
+    integrate.__name__ = 'Riemann'
 
-    for x in np.linspace(a, b, intervals):
-        integral += delta * f(x)
+    try:
+        if b <= a:
+            print('Bad bounds! You fool!')
+            raise ValueError
+        elif intervals <= 0:
+            print('Bogus number of intervals! Argh!')
+            raise ValueError
 
-    return integral
+        integral = 0.
+        delta = (float(b) - float(a))/(float(intervals) - 1)
+
+        for x in np.linspace(a, b, intervals):
+            integral += delta * f(x)
+
+        return integral
+
+    except:
+        print('ERROR: ' + integrate.__name__)
+        print('You gave me bad inputs!')
+        return None
 
 
-def integrate_mc(f, a, b, bounds, intervals=1000):
-    (c, d) = bounds
-    a = float(a)
-    b = float(b)
-    c = float(c)
-    d = float(d)
-    '''
-    the method from the class notes does not work. This method is from the
-    Wikipedia page linked in the assignment. c and d are unused.
-    '''
+def integrate_mc(f, a, b, bounds=None, samples=1000):
+    try:
+        integrate_mc.__name__ = 'Monte Carlo'
+        a = float(a)
+        b = float(b)
+        try:
+            (c, d) = bounds
+            c = float(c)
+            d = float(d)
+        except:
+            c = 0
+            d = 0
 
-    # evaluate function
-    integral = 0.
-    for i in xrange(intervals):
-        x = random.random() * (b - a) + a
-        integral += f(x)
-    return (b - a) / (intervals - 1) * integral
+        if b <= a:
+            print('Bad bounds! You fool!')
+            raise ValueError
+        elif d <= c:
+            print('Bad c, d pair. Good thing I don\'t use those.')
+        elif intervals <= 0:
+            print('Bogus number of samples! Argh!')
+            raise ValueError
+
+        '''
+        the method from the class notes does not work. This method is from the
+        Wikipedia page linked in the assignment. c and d are unused.
+        '''
+
+        # evaluate function
+        integral = 0.
+        for i in xrange(samples):
+            x = random.random() * (b - a) + a
+            integral += f(x)
+        return (b - a) / (samples - 1) * integral
+
+    except:
+        print('ERROR: ' + integrate_mc.__name__)
+        print('You gave me bad inputs!')
+        return None
 
 
 def approximate_pi():
@@ -84,16 +123,23 @@ def tester_mc(start, end, bc, steps):
 def plot_results(start, end):
     functions = [integrate, integrate_mc]
     int_args = [[parabola, start, end, None],
-                [parabola, start, end, (0, 0), None]]
-    steps = np.power(2, np.array(range(7, 20)))
+                [parabola, start, end, (0, 1), None]]
+    steps = np.power(2, np.array(range(6, 21)))
     analytical = end**3/3 - start**3/3
     for i, integrator in enumerate(functions):
         error = []
         for s in steps:
             int_args[i][-1] = s
             numerical = integrator(*tuple(int_args[i]))
-            error.append(abs(analytical - numerical)/analytical)
-        plt.semilogx(steps, error, label=integrator.__name__)
+            error.append(abs(analytical - numerical))
+        plt.semilogx(steps, error, label=integrator.__name__, basex=2)
+        plt.legend()
+        plt.xlabel('Intervals/Samples')
+        plt.ylabel('Absolute Error')
+        plt.title('Absolute Error of Riemann and Monte-Carlo Integrators')
+        plt.grid('on')
+        plt.xlim([min(steps), max(steps)])
+        plt.show()
 
 
 if __name__ == '__main__':
@@ -108,10 +154,10 @@ if __name__ == '__main__':
     print('=======')
     tester_riemann(start, stop, steps)
     print
-    
+
     # test monte carlo integrator using a parabola and sinusoid
     print('MONTE CARLO')
     print('===========')
     tester_mc(start, stop, (0, 1), steps)
-    
+
     plot_results(0, 5)
