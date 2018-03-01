@@ -56,7 +56,7 @@ def integrate_mc(f, a, b, bounds=None, samples=1000):
             raise ValueError
         elif d <= c:
             print('Bad c, d pair. Good thing I don\'t use those.')
-        elif intervals <= 0:
+        elif samples <= 0:
             print('Bogus number of samples! Argh!')
             raise ValueError
 
@@ -76,10 +76,6 @@ def integrate_mc(f, a, b, bounds=None, samples=1000):
         print('ERROR: ' + integrate_mc.__name__)
         print('You gave me bad inputs!')
         return None
-
-
-def approximate_pi():
-    pass
 
 
 def parabola(x):
@@ -140,6 +136,27 @@ def plot_results(start, end):
         plt.grid('on')
         plt.xlim([min(steps), max(steps)])
         plt.show()
+
+
+def approximate_pi(number_samples):
+    try:
+        number_samples = int(number_samples)
+        if number_samples <= 0:
+            raise ValueError
+    except:
+        print('Bogus sample number')
+        return None
+
+    total = 0.
+    success = 0.
+    for i in range(number_samples):
+        total += 1
+        x = random.random()
+        y = random.random()
+        if x**2 + y**2 <= 1:
+            success += 1
+
+    return 4. * success / total
 
 
 if __name__ == '__main__':
