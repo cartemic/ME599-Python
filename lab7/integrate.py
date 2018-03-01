@@ -135,7 +135,7 @@ def plot_results(start, end):
         plt.title('Absolute Error of Riemann and Monte-Carlo Integrators')
         plt.grid('on')
         plt.xlim([min(steps), max(steps)])
-        plt.show()
+    plt.show()
 
 
 def approximate_pi(number_samples):
@@ -147,16 +147,14 @@ def approximate_pi(number_samples):
         print('Bogus sample number')
         return None
 
-    total = 0.
     success = 0.
     for i in range(number_samples):
-        total += 1
         x = random.random()
         y = random.random()
         if x**2 + y**2 <= 1:
             success += 1
 
-    return 4. * success / total
+    return 4. * success / number_samples
 
 
 if __name__ == '__main__':
