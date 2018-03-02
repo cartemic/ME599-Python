@@ -54,27 +54,66 @@ class Temperature():
 
 class Detonation():
     # has a cj velocity and mass loss from tank estimate
-    def __init__(self, Pressure, Temp, mixture, mechanism='gri30.cti'):
-        pass
+    def __init__(self, Pressure, Temp, fuel, oxidizer, equivalence=1,
+                 mechanism='gri30.cti'):
+        self.mechanism = mechanism
+        self.P = Pressure  # ADD UNIT FIXING
+        try:
+            self.T = Temp.to_Kelvin
+        except:
+            print('Bad temperature given, assuming units are Kelvin')
+            self.T = Temperature(Temp)
 
+        self.undiluted = ct.Solution(mechanism)
+        self.undiluted.TP = (self.T.value, self.P)
+        good_species = self.undiluted.species_names
+        if fuel in good_species:
+            self.fuel = fuel
+        else:
+            print('Bad Fuel')
+            return
+        if oxidizer in good_species:
+            self.oxidizer = oxidizer
+        else:
+            print('Bad Oxidizer')
+            return
 
-def CJ_Velocity(Pressure_Pa, Temp_K, mixture_string, mechanism='gri30.cti'):
-    # ensure data types
-    # check pressure, temperature units
+        self.set_equivalence(equivalence)
 
-    # calculate and return CJ velocity
-    [cj_speed, _] = sd.CJspeed(Pressure_Pa, Temp_K, mixture_string,
-                               mechanism, 0)
-    return Velocity(cj_speed)
+    def set_equivalence(self, equivalence_ratio):
+        # use Cantera to set equivalence ratio of undiluted mixture
+        self.undiluted.set_equivalence_ratio(equivalence_ratio,
+                                             self.fuel,
+                                             self.oxidizer)
 
+        # update equivalence ratio
+        self.phi = equivalence_ratio
+        if sum([self.undiluted.X > 0][0]) < 2:
+            print('You can\t detonate that, ya dingus')
+            return
 
-def Equivalence():
-    pass
+    def get_mixture_string(self, diluted=False):
+        if diluted:
+            cantera_solution = self.diluted
+        else:
+            cantera_solution = self.undiluted
+        mixture_list = []
+        for i, species in enumerate(cantera_solution.species_names):
+            if cantera_solution.X[i] > 0:
+                mixture_list.append(species + ':' +
+                                    str(cantera_solution.X[i]))
+        return ' '.join(mixture_list)
 
+    def CJ_Velocity(self, diluted=False):
+        # calculate and return CJ velocity
+        [cj_speed, _] = sd.CJspeed(self.P.value, self.T.value,
+                                   self.get_mixture_string(diluted),
+                                   self.mechanism, 0)
+        return Velocity(cj_speed)
 
-def Dilution():
-    pass
-
+    """
+    ADD IN DILUTED CASE
+    """
 
 if __name__ == '__main__':
     T = Temperature(100)

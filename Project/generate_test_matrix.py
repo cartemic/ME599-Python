@@ -20,10 +20,6 @@ def Build_matrix():
     pass
 
 
-def Get_detonation():
-    pass
-
-
 def Output_results():
     pass
 
