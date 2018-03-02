@@ -83,11 +83,11 @@ class Pressure():
         if self.unit == 'Pa':
             return self
         elif self.unit == 'kPa':
-            return Pressure(self.value * 1000.)
+            return Pressure(self.value * 1000., 'Pa')
         elif self.unit == 'psia':
-            return Pressure(self.value / 0.00014503773800722)
+            return Pressure(self.value / 0.00014503773800722, 'Pa')
         else:
-            return Pressure(self.value * 101325)
+            return Pressure(self.value * 101325, 'Pa')
 
     def __str__(self):
         return str(self.value) + ' ' + self.unit
@@ -133,7 +133,7 @@ class Temperature():
         if self.unit == 'K':
             return self
         elif self.unit == 'C':
-            return Temperature(self.value + 273.15)
+            return Temperature(self.value + 273.15, 'K')
         elif self.unit == 'F':
             return Temperature((self.value - 32.) * 5./9., 'C').to_Kelvin()
         else:
@@ -233,7 +233,7 @@ class Detonation():
         [cj_speed, _] = sd.CJspeed(self.P.value, self.T.value,
                                    self.get_mixture_string(diluted),
                                    self.mechanism, 0)
-        return Velocity(cj_speed)
+        return Velocity(cj_speed, 'm/s')
 
     def add_diluent(self, diluent, mole_fraction):
         '''

@@ -30,9 +30,6 @@ def User_input(user_query, desired_type):
             print('Error: could not convert to ' + str(desired_type))
             print('Try again.\n')
 
-def Build_matrix():
-    pass
-
 
 def Output_results():
     pass
@@ -44,11 +41,14 @@ def Generate():
     initial_temperature = User_input('Initial Temperature:', det.Temperature)
     fuel = User_input('Fuel:', str)
     oxidizer = User_input('Oxidizer:', str)
-    diliuent_gases = User_input('Diluent gases:', list)
-    equivalence_ratios = User_input('Equivalence Ratios:', list)
-    dil_mass_fracs = User_input('Diluent mass fractions for diluted tests:',
-                                list)
+    diluent_gases = User_input('Diluent gases (separated by spaces):', list)
+    equivalence_ratios = User_input('Equivalence Ratios' +
+                                    ' (separated by spaces):', list)
+    dil_mass_fracs = User_input('Diluent mass fractions for diluted tests' +
+                                ' (separated by spaces):', list)
 
+    # initialize a detonation WON'T WORK YET
+    my_detonation = det.Detonation(initial_pressure, initial_temperature, fuel, oxidizer)
 
 # %% main program
 # request test conditions from user
@@ -56,4 +56,4 @@ def Generate():
 # predict CJ velocity and estimate gas masses
 
 if __name__ == '__main__':
-    shit = User_input('poop', list)
+    Generate()
