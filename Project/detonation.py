@@ -10,17 +10,50 @@ import cantera as ct
 
 
 class Velocity():
-    pass
+    '''
+    A velocity object for easy unit envforcement to prevent the user from
+    being too dumb. The only units here are m/s because I have no reason to
+    use other units in this application. They can be added later if needed.
+    '''
+    units = set(['m/s'])
+
+    def __init__(self, velocity, unit='m/s'):
+
+        # make sure units are good
+        if unit not in Velocity.units:
+            raise ValueError
+
+        # duck type it for ease of use
+        try:
+            self.value = velocity.value
+            self.unit = velocity.unit
+        except:
+            try:
+                self.value = float(velocity)
+                self.unit = unit
+            except:
+                print('Bogus velocity input')
+                return
+
+    def __str__(self):
+        return str(self.value) + ' ' + self.unit
+
+    def __repr__(self):
+        try:
+            return str(self)
+        except:
+            return ''
 
 
 class Pressure():
+    '''
+    A pressure object for easy unit conversion to prevent the user from
+    being too dumb. Units default to Pascals if not specified.
+    '''
     units = set(['Pa', 'kPa', 'psia', 'atm'])
 
     def __init__(self, pressure, unit='Pa'):
-        '''
-        A pressure object for easy unit conversion to prevent the user from
-        being too dumb. Units default to Pascals if not specified.
-        '''
+
         # make sure units are good
         if unit not in Pressure.units:
             raise ValueError
@@ -30,8 +63,12 @@ class Pressure():
             self.value = pressure.value
             self.unit = pressure.unit
         except:
-            self.value = pressure
-            self.unit = unit
+            try:
+                self.value = float(pressure)
+                self.unit = unit
+            except:
+                print('Bogus pressure input')
+                return
 
     def to_Pa(self):
         '''
@@ -50,17 +87,20 @@ class Pressure():
         return str(self.value) + ' ' + self.unit
 
     def __repr__(self):
-        return str(self)
+        try:
+            return str(self)
+        except:
+            return ''
 
 
 class Temperature():
+    '''
+    A temperature object for easy unit conversion to prevent the user from
+    being too dumb. Units default to Kelvin if not specified.
+    '''
     units = set(['K', 'C', 'F', 'R'])
 
     def __init__(self, temperature, unit='K'):
-        '''
-        A temperature object for easy unit conversion to prevent the user from
-        being too dumb. Units default to Kelvin if not specified.
-        '''
         # make sure units are good
         if unit not in Temperature.units:
             raise ValueError
@@ -70,8 +110,12 @@ class Temperature():
             self.value = temperature.value
             self.unit = temperature.unit
         except:
-            self.value = temperature
-            self.unit = unit
+            try:
+                self.value = float(temperature)
+                self.unit = unit
+            except:
+                print('Bogus temperature input')
+                return
 
     def to_Kelvin(self):
         '''
@@ -90,7 +134,10 @@ class Temperature():
         return str(self.value) + ' ' + self.unit
 
     def __repr__(self):
-        return str(self)
+        try:
+            return str(self)
+        except:
+            return ''
 
 
 class Detonation():
@@ -112,14 +159,14 @@ class Detonation():
 
         # ensure good temperature input
         try:
-            self.T = init_temp.to_Kelvin
+            self.T = init_temp.to_Kelvin()
         except:
             print('Bad temperature given, assuming units are Kelvin')
             self.T = Temperature(init_temp)
 
         # initialize undiluted gas solution in Cantera
         self.undiluted = ct.Solution(mechanism)
-        self.undiluted.TP = (self.T.value, self.P)
+        self.undiluted.TP = (self.T.value, self.P.value)
 
         # make sure the user input species that are in the mechanism file
         good_species = self.undiluted.species_names
@@ -178,9 +225,78 @@ class Detonation():
                                    self.mechanism, 0)
         return Velocity(cj_speed)
 
-    """
-    ADD IN DILUTED CASE
-    """
+    def add_diluent(self, diluent, mole_fraction):
+        '''
+        Adds a diluent to an undiluted mixture, keeping the same equivalence
+        ratio.
+        '''
+        # make sure diluent is available in mechanism and isn't the fuel or ox
+        if diluent not in self.undiluted.species_names:
+            print('Bad diluent.')
+            return
+        elif diluent in [self.fuel, self.oxidizer]:
+            print('You can\'t dilute with fuel or oxidizer!')
+            return
+        elif mole_fraction > 1.:
+            print('Bro, do you even mole fraction?')
+            return
+
+        # collect undiluted mole fractions
+        mole_fractions = self.undiluted.mole_fraction_dict()
+
+        # add diluent and adjust mole fractions so they sum to 1
+        mole_fractions[diluent] = mole_fraction
+        mole_fractions = {key: mole_fractions[key] /
+                          sum(mole_fractions.values())
+                          for key in mole_fractions}
+        try:
+            # add to diluted cantera solution
+            self.diluted.X = mole_fractions
+        except:
+            # create cantera solution if one doesn't exist
+            self.diluted = ct.Solution(self.mechanism)
+            self.diluted.TPX = (self.T.value, self.P.value, mole_fractions)
+
+    def __str__(self):
+        return '''This is my detonation.
+There are many like it, but this one is mine.
+
+My detonation is my best friend.
+It is my life.
+I must master it as I must master my life.
+
+Without me my detonation is useless.
+Without my detonation I am useless.
+I must initiate my detonation true.
+I must initiate better than my academic rivals who are trying to outpublish me.
+I must collect data before he collects my data.
+I will...
+
+My detonation and I know that what counts in academia is not the detonations
+we initiate, the data we collect, nor the analysis we conduct.
+We know that it is the impact factors that count.
+We will publish...
+
+My detonation is human, even as I, because it is my life.
+Thus, I will learn it as a brother.
+I will learn its weaknesses, its strength, its parameters, its diluents,
+its causes and its effects.
+I will keep my detonation tube clean and ready.
+We will become part of each other.
+We will...
+
+Before Joe Shepherd, I swear this creed.
+My detonation and I are defenders of my degree.
+We are the masters of our academic rivals.
+We are the saviors of my degree.
+
+So be it, until victory is Oregon State's and there is no enemy but data.'''
+
+    def __repr__(self):
+        return str(self)
+
 
 if __name__ == '__main__':
-    T = Temperature(100)
+    T = Temperature(100, 'F')
+    P = Pressure(1, 'atm')
+    test = Detonation(P, T, 'CH4', 'N2O')

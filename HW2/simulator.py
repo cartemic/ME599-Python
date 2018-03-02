@@ -35,7 +35,7 @@ def generate_waypoints(use_basic=False):
 
 
 def output_waypoints(waypoints, file_name):
-    # open file
+    # open file and write
     with open(file_name, 'w') as f:
         for i in xrange(len(waypoints)):
             f.write(str(waypoints[i][0]) + ' ' + str(waypoints[i][1]) + '\n')
