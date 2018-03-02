@@ -12,9 +12,23 @@ import pandas as pd
 # %% define functions
 
 
-def Get_user_info():
-    pass
+def User_input(user_query, desired_type):
+    flag = True
+    while flag:
+        information = raw_input(user_query+' ').split()
+        try:
+            if desired_type is list:
+                return information
 
+            output = desired_type(*information)
+            if isinstance(output, type(None)):
+                raise ValueError
+            else:
+                return output
+                flag = False
+        except:
+            print('Error: could not convert to ' + str(desired_type))
+            print('Try again.\n')
 
 def Build_matrix():
     pass
@@ -24,10 +38,22 @@ def Output_results():
     pass
 
 
+def Generate():
+    # collect input from the user
+    initial_pressure = User_input('Initial Pressure:', det.Pressure)
+    initial_temperature = User_input('Initial Temperature:', det.Temperature)
+    fuel = User_input('Fuel:', str)
+    oxidizer = User_input('Oxidizer:', str)
+    diliuent_gases = User_input('Diluent gases:', list)
+    equivalence_ratios = User_input('Equivalence Ratios:', list)
+    dil_mass_fracs = User_input('Diluent mass fractions for diluted tests:',
+                                list)
+
+
 # %% main program
 # request test conditions from user
 # build test matrix
 # predict CJ velocity and estimate gas masses
 
-if __name__ == 'main':
-    pass
+if __name__ == '__main__':
+    shit = User_input('poop', list)

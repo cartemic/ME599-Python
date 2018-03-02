@@ -17,7 +17,10 @@ class Velocity():
     '''
     units = set(['m/s'])
 
-    def __init__(self, velocity, unit='m/s'):
+    def __init__(self, velocity, unit=None):
+        if unit is None:
+            unit = 'm/s'
+            print('No unit given. Assuming ' + unit)
 
         # make sure units are good
         if unit not in Velocity.units:
@@ -33,7 +36,7 @@ class Velocity():
                 self.unit = unit
             except:
                 print('Bogus velocity input')
-                return
+                raise ValueError
 
     def __str__(self):
         return str(self.value) + ' ' + self.unit
@@ -52,7 +55,10 @@ class Pressure():
     '''
     units = set(['Pa', 'kPa', 'psia', 'atm'])
 
-    def __init__(self, pressure, unit='Pa'):
+    def __init__(self, pressure, unit=None):
+        if unit is None:
+            unit = 'Pa'
+            print('No unit given. Assuming ' + unit)
 
         # make sure units are good
         if unit not in Pressure.units:
@@ -68,7 +74,7 @@ class Pressure():
                 self.unit = unit
             except:
                 print('Bogus pressure input')
-                return
+                raise ValueError
 
     def to_Pa(self):
         '''
@@ -100,7 +106,10 @@ class Temperature():
     '''
     units = set(['K', 'C', 'F', 'R'])
 
-    def __init__(self, temperature, unit='K'):
+    def __init__(self, temperature, unit=None):
+        if unit is None:
+            unit = 'K'
+            print('No unit given. Assuming ' + unit)
         # make sure units are good
         if unit not in Temperature.units:
             raise ValueError
@@ -115,7 +124,7 @@ class Temperature():
                 self.unit = unit
             except:
                 print('Bogus temperature input')
-                return
+                raise ValueError
 
     def to_Kelvin(self):
         '''
@@ -174,12 +183,12 @@ class Detonation():
             self.fuel = fuel
         else:
             print('Bad Fuel')
-            return
+            raise ValueError
         if oxidizer in good_species:
             self.oxidizer = oxidizer
         else:
             print('Bad Oxidizer')
-            return
+            raise ValueError
 
         # set the default equivalence ratio
         self.set_equivalence(equivalence)
@@ -188,6 +197,7 @@ class Detonation():
         '''
         Sets the equivalence ratio of the undiluted mixture using Cantera
         '''
+        equivalence_ratio = float(equivalence_ratio)
         # set the equivalence ratio
         self.undiluted.set_equivalence_ratio(equivalence_ratio,
                                              self.fuel,
@@ -196,7 +206,7 @@ class Detonation():
         # ensure good inputs were given and record new equivalence ratio
         if sum([self.undiluted.X > 0][0]) < 2:
             print('You can\t detonate that, ya dingus')
-            return
+            raise ValueError
         self.phi = equivalence_ratio
 
     def get_mixture_string(self, diluted=False):
@@ -233,13 +243,13 @@ class Detonation():
         # make sure diluent is available in mechanism and isn't the fuel or ox
         if diluent not in self.undiluted.species_names:
             print('Bad diluent.')
-            return
+            raise ValueError
         elif diluent in [self.fuel, self.oxidizer]:
             print('You can\'t dilute with fuel or oxidizer!')
-            return
+            raise ValueError
         elif mole_fraction > 1.:
             print('Bro, do you even mole fraction?')
-            return
+            raise ValueError
 
         # collect undiluted mole fractions
         mole_fractions = self.undiluted.mole_fraction_dict()
@@ -294,6 +304,8 @@ So be it, until victory is Oregon State's and there is no enemy but data.'''
 
     def __repr__(self):
         return str(self)
+
+    # add mass estimation
 
 
 if __name__ == '__main__':
