@@ -26,7 +26,7 @@ def generate_waypoints(use_basic=False):
         pass
     else:
         for i in range(10):
-            waypoints.append((random.random()*10, random.random()*10))
+            waypoints.append((random.random()*20-10., random.random()*20-10))
 
     # add ending waypoint
     waypoints.append((10, 10))
