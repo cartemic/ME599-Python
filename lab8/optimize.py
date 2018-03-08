@@ -6,7 +6,11 @@ Created on Wed Mar 07 17:28:07 2018
 """
 
 import numpy as np
+import scipy as sp
 from matplotlib import pyplot as plt
+
+
+plt.close('all')
 
 
 def optimize_step(f, bounds, n):
@@ -25,7 +29,7 @@ def optimize_random(f, bounds, n):
     return x_values[y_values == np.nanmax(y_values)][0]
 
 
-def optimize_gradient(f, bounds, epsilon, max_iter=1000, max_loop_err=True):
+def optimize_gradient(f, bounds, epsilon, max_iter=100000, max_loop_err=True):
     # set initial step size, h
     left = min(bounds)
     right = max(bounds)
@@ -33,11 +37,10 @@ def optimize_gradient(f, bounds, epsilon, max_iter=1000, max_loop_err=True):
     h = 0.1 * interval
 
     # generate a random point on the interval to begin evaluation
-    x = np.random.uniform(left + h, right - h)
-    y = np.zeros(3)
+    x = np.random.uniform(left + 2 * h, right - 2 * h)
+    y = np.zeros(5)
 
     # initialize derivative, solution, counter, and error
-    y_prime = np.zeros(2)
     count = 0
 
     # begin optimization
@@ -45,24 +48,14 @@ def optimize_gradient(f, bounds, epsilon, max_iter=1000, max_loop_err=True):
         count += 1
 
         # evaulate x over range +/- h to get derivative
-        y = [f(x - h), f(x), f(x + h)]
+        y = [f(x - 2 * h), f(x - h), f(x), f(x + h), f(x + 2 * h)]
+        j = 2
 
-        # calculate left derivative
-        y_prime[0] = (y[1] - y[0]) / h
+        # calculate derivative using 4th order accurate central difference
+        y_prime = (y[j-2] - 8 * y[j-1] + 8 * y[j+1] - y[j+2]) / (12 * h)
 
-        # calculate right derivative
-        y_prime[1] = (y[2] - y[1]) / h
-
-        # figure out which direction to go
-        if y[0] < y[1] > y[2]:
-            # refine step size
-            h /= 2.
-        elif y[2] > y[1]:
-            # go right
-            x = min(x + h, right)
-        else:
-            # go left
-            x = max(x - h, left)
+        h = 0.01 * y_prime
+        x += h
 
         # do counter stuff
         if count >= max_iter:
@@ -169,7 +162,13 @@ def check_functions():
 
 def plot_functions():
     solution = 1.
-    steps = np.logspace(0, 11, 100, base=2)
+    steps = np.logspace(2, 12, 50, base=2)
+    # use lambda function to maximize rather than minimize the function
+    # https://stackoverflow.com/questions/10146924/
+    # finding-the-maximum-of-a-function
+    builtin_err = abs(solution -
+                      sp.optimize.minimize(lambda x: -my_function(x),
+                                           0).x[0]) * np.ones(steps.shape)
     step_err = np.array([abs(optimize_step(my_function,
                                            (-1, 1.5),
                                            int(step)) - solution)
@@ -184,10 +183,17 @@ def plot_functions():
                                                int(step),
                                                False) - solution)
                          for step in steps])
-    plt.semilogx(steps, step_err, label='step', basex=2)
-    plt.semilogx(steps, rand_err, label='random', basex=2)
-    plt.semilogx(steps, grad_err, label='gradient', basex=2)
-    plt.legend()
+    plt.semilogx(steps, builtin_err, label='Scipy', basex=2, linewidth=0.5)
+    plt.semilogx(steps, step_err, label='Step', basex=2, linewidth=0.5)
+    plt.semilogx(steps, rand_err, label='Random', basex=2, linewidth=0.5)
+    plt.semilogx(steps, grad_err, label='Gradient', basex=2, linewidth=0.5)
+    plt.legend(title='Solver')
+    plt.grid('on')
+    plt.xlim([min(steps), max(steps)])
+    plt.xlabel('Function Evaluations')
+    plt.ylabel('Absolute Error')
+    plt.title('Solver Error vs. Evaluations')
+    plt.show()
 
 
 if __name__ == '__main__':
