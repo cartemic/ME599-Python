@@ -53,9 +53,9 @@ def improve_waypoints(num_waypoints, waypoint_step=0.1, instance=0):
     waypoints_basic = generate_waypoints(use_basic=True)
     waypoints_better = generate_waypoints(num_waypoints)
     output_waypoints(waypoints_basic, basic_file)
-    output_waypoints(waypoints_better, better_file)
     basic_score = get_score(basic_file, instance)
-    better_score = get_score(better_file)
+    use_the_class = Simulator(instance)
+    better_score = use_the_class.evaluate(waypoints_better, better_file)
     new_score = [better_score, better_score]
     count = 0
     repeat_count = 0
@@ -65,8 +65,8 @@ def improve_waypoints(num_waypoints, waypoint_step=0.1, instance=0):
         while new_score[0] >= basic_score:
             count += 1
             waypoints_better = generate_waypoints(num_waypoints)
-            output_waypoints(waypoints_better, better_file)
-            new_score[0] = get_score(better_file, instance)
+            new_score[0] = use_the_class.evaluate(waypoints_better,
+                                                  better_file)
             print count, new_score[0]
 
     else:
@@ -109,8 +109,8 @@ def improve_waypoints(num_waypoints, waypoint_step=0.1, instance=0):
                                                                            y)
 
                     # check for score improvement
-                    output_waypoints(waypoints_better, better_file)
-                    new_score[0] = get_score(better_file, instance)
+                    new_score[0] = use_the_class.evaluate(waypoints_better,
+                                                          better_file)
                     print '    old score:', new_score[1]
                     print '    new score:', new_score[0]
                     if new_score[0] < new_score[1]:
@@ -145,8 +145,8 @@ def improve_waypoints(num_waypoints, waypoint_step=0.1, instance=0):
                                                        random.random() * 20-10)
                         # sort the points
                         waypoints_better = sorted(waypoints_better)
-                        output_waypoints(waypoints_better, better_file)
-                        test = get_score(better_file, instance)
+                        test = use_the_class.evaluate(waypoints_better,
+                                                      better_file)
                         improvement_count += 1
                         if test < new_score[0]:
                             new_score[0] = test
@@ -170,8 +170,7 @@ class Simulator():
     def __init__(self, instance):
         self.instance = instance
 
-    def evaluate(self, waypoints):
-        filename = 'class_waypoints'
+    def evaluate(self, waypoints, filename='class_waypoints'):
         output_waypoints(waypoints, filename)
         return get_score(filename, self.instance)
 
