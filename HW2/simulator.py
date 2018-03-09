@@ -166,6 +166,16 @@ def improve_waypoints(num_waypoints, waypoint_step=0.1, instance=0):
     return(basic_score, new_score[0])
 
 
+class Simulator():
+    def __init__(self, instance):
+        self.instance = instance
+
+    def evaluate(self, waypoints):
+        filename = 'class_waypoints'
+        output_waypoints(waypoints, filename)
+        return get_score(filename, self.instance)
+
+
 if __name__ == '__main__':
     instance = 0
     num_points = 4

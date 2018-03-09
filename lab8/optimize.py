@@ -6,7 +6,7 @@ Created on Wed Mar 07 17:28:07 2018
 """
 
 import numpy as np
-import scipy as sp
+from scipy import optimize as op
 from matplotlib import pyplot as plt
 
 
@@ -167,8 +167,8 @@ def plot_functions():
     # https://stackoverflow.com/questions/10146924/
     # finding-the-maximum-of-a-function
     builtin_err = abs(solution -
-                      sp.optimize.minimize(lambda x: -my_function(x),
-                                           0).x[0]) * np.ones(steps.shape)
+                      op.minimize(lambda x: -my_function(x),
+                                  0).x[0]) * np.ones(steps.shape)
     step_err = np.array([abs(optimize_step(my_function,
                                            (-1, 1.5),
                                            int(step)) - solution)
