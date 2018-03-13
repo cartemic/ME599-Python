@@ -18,20 +18,17 @@ class Velocity():
     units = set(['m/s'])
 
     def __init__(self, velocity, unit=None):
-        if unit is None:
-            unit = 'm/s'
-            print('No unit given. Assuming ' + unit)
-
-        # make sure units are good
-        if unit not in Velocity.units:
-            raise ValueError
-
         # duck type it for ease of use
         try:
             self.value = velocity.value
             self.unit = velocity.unit
         except:
             try:
+                if unit is None:
+                    unit = 'm/s'
+                    print('No unit given. Assuming ' + unit)
+                elif unit not in Velocity.units:
+                    raise ValueError
                 self.value = float(velocity)
                 self.unit = unit
             except:
@@ -56,20 +53,17 @@ class Pressure():
     units = set(['Pa', 'kPa', 'psia', 'atm'])
 
     def __init__(self, pressure, unit=None):
-        if unit is None:
-            unit = 'Pa'
-            print('No unit given. Assuming ' + unit)
-
-        # make sure units are good
-        if unit not in Pressure.units:
-            raise ValueError
-
         # duck type it for ease of use
         try:
             self.value = pressure.value
             self.unit = pressure.unit
         except:
             try:
+                if unit is None:
+                    unit = 'Pa'
+                    print('No unit given. Assuming ' + unit)
+                elif unit not in Pressure.units:
+                    raise ValueError
                 self.value = float(pressure)
                 self.unit = unit
             except:
@@ -98,6 +92,12 @@ class Pressure():
         except:
             return ''
 
+    def __mul__(self, other):
+        return Pressure(other * self.value, self.unit)
+
+    def __rmul__(self, other):
+        return self * other
+
 
 class Temperature():
     '''
@@ -107,19 +107,17 @@ class Temperature():
     units = set(['K', 'C', 'F', 'R'])
 
     def __init__(self, temperature, unit=None):
-        if unit is None:
-            unit = 'K'
-            print('No unit given. Assuming ' + unit)
-        # make sure units are good
-        if unit not in Temperature.units:
-            raise ValueError
-
         # duck type it for ease of use
         try:
             self.value = temperature.value
             self.unit = temperature.unit
         except:
             try:
+                if unit is None:
+                    unit = 'K'
+                    print('No unit given. Assuming ' + unit)
+                elif unit not in Temperature.units:
+                    raise ValueError
                 self.value = float(temperature)
                 self.unit = unit
             except:
@@ -148,6 +146,12 @@ class Temperature():
         except:
             return ''
 
+    def __mul__(self, other):
+        return Temperature(other * self.value, self.unit)
+
+    def __rmul__(self, other):
+        return self * other
+
 
 class Detonation():
     '''
@@ -164,14 +168,14 @@ class Detonation():
             self.P = init_pressure.to_Pa()
         except:
             print('Bad pressure given, assuming units are Pascals')
-            self.P = Pressure(init_pressure)
+            self.P = Pressure(init_pressure, 'Pa')
 
         # ensure good temperature input
         try:
             self.T = init_temp.to_Kelvin()
         except:
             print('Bad temperature given, assuming units are Kelvin')
-            self.T = Temperature(init_temp)
+            self.T = Temperature(init_temp, 'K')
 
         # initialize undiluted gas solution in Cantera
         self.undiluted = ct.Solution(mechanism)
@@ -305,7 +309,9 @@ So be it, until victory is Oregon State's and there is no enemy but data.'''
     def __repr__(self):
         return str(self)
 
-    # add mass estimation
+    def get_mass(self, tube_volume_m3):
+        # add mass estimation
+        pass
 
 
 if __name__ == '__main__':
