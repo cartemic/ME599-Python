@@ -272,7 +272,8 @@ class Detonation():
             self.diluted.TPX = (self.T.value, self.P.value, mole_fractions)
 
     def __str__(self):
-        return '''This is my detonation.
+        return '''
+This is my detonation.
 There are many like it, but this one is mine.
 
 My detonation is my best friend.
@@ -304,14 +305,49 @@ My detonation and I are defenders of my degree.
 We are the masters of our academic rivals.
 We are the saviors of my degree.
 
-So be it, until victory is Oregon State's and there is no enemy but data.'''
+So be it, until victory is Oregon State's and there is no enemy but data.
+'''
 
     def __repr__(self):
         return str(self)
 
-    def get_mass(self, tube_volume_m3):
-        # add mass estimation
-        pass
+    def get_mass(self, tube_volume_m3, diluted=False):
+        '''
+        The cantera concentration function is used to collect
+        species concentrations, in kmol/m^3, which are then multiplied by
+        the molecular weights in kg/kmol to get the density in kg/m^3. This
+        is then multiplied by the tube volume to get the total mass of each
+        component.
+        '''
+        if diluted:
+            cantera_solution = self.diluted
+        else:
+            cantera_solution = self.undiluted
+        mixture_list = []
+        for i, species in enumerate(cantera_solution.species_names):
+            if cantera_solution.X[i] > 0:
+                mixture_list.append([species,
+                                    cantera_solution.concentrations[i] *
+                                    cantera_solution.molecular_weights[i] *
+                                    tube_volume_m3])
+        return dict(mixture_list)
+
+    def get_pressures(self, diluted=False):
+        '''
+        Cantera is used to get the mole fractions of each species, which are
+        then multiplied by the initial pressure to get each partial pressure.
+        '''
+        if diluted:
+            cantera_solution = self.diluted
+        else:
+            cantera_solution = self.undiluted
+        mixture_list = []
+        for i, species in enumerate(cantera_solution.species_names):
+            if cantera_solution.X[i] > 0:
+                mixture_list.append([species,
+                                    self.P.value *
+                                    cantera_solution.X[i]])
+        return dict(mixture_list)
 
 
 if __name__ == '__main__':
