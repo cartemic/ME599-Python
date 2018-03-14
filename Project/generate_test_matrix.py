@@ -15,7 +15,7 @@ import os
 
 
 def add_row(self, row):
-    # add a row to a pandas dataframe
+    # add a row to a pandas dataframe, code from
     # https://stackoverflow.com/questions/10715965/
     # add-one-row-in-a-pandas-dataframe
     self.loc[len(self.index)] = row
@@ -66,8 +66,9 @@ def Generate(initial_pressure,
 
     # make sure there is an undiluted case
     if 'None' not in diluent_str_list:
-        diluent_str_list.append('None')
-    diluent_str_list = sorted(diluent_str_list)
+        # Insert at beginning of list. Uses a string because a NoneType causes
+        # problems with the dataframe reordering later in the script.
+        diluent_str_list.insert(0, 'None')
 
     # initialize a detonation
     my_detonation = det.Detonation(initial_pressure,
@@ -89,9 +90,7 @@ def Generate(initial_pressure,
         df = pd.DataFrame(columns=column_titles)
         # initialize blank list of test conditions
         if replicate == 0:
-            """REMOVE"""
-            pass
-            # block by diluent
+            # block by diluent USE MULTIPLE CORES
             for i in xrange(len(diluent_str_list)):
                 print '    diluent', i
                 # build list of all test combinations
@@ -159,10 +158,9 @@ def Generate(initial_pressure,
         # append current dataframe to list
         df_list.append(df)
     return df_list
+
+
 # %% main program
-# request test conditions from user
-# build test matrix
-# predict CJ velocity and estimate gas masses
 
 
 if __name__ == '__main__':
