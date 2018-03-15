@@ -246,7 +246,7 @@ class Detonation():
         '''
         # make sure diluent is available in mechanism and isn't the fuel or ox
         if diluent not in self.undiluted.species_names:
-            print('Bad diluent.')
+            print('Bad diluent:', diluent)
             raise ValueError
         elif diluent in [self.fuel, self.oxidizer]:
             print('You can\'t dilute with fuel or oxidizer!')
@@ -351,6 +351,6 @@ So be it, until victory is Oregon State's and there is no enemy but data.
 
 
 if __name__ == '__main__':
-    T = Temperature(100, 'F')
+    T = Temperature(70, 'F')
     P = Pressure(1, 'atm')
-    test = Detonation(P, T, 'CH4', 'N2O')
+    test = Detonation(P, T, 'H2', 'O2')

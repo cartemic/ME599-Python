@@ -1,0 +1,13 @@
+replicate 0
+    Starting  None on core 0
+    Starting  AR on core 1
+    Starting  N2 on core 2
+    Starting  CO2 on core 3
+
+    Finished None matrix
+    Finished AR matrix
+    Finished N2 matrix
+    Finished CO2 matrix
+replicate 1
+replicate 2
+replicate 3
