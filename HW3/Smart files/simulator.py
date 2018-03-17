@@ -12,9 +12,9 @@ import sys
 
 
 class Simulator:
-    def __init__(self, instance, executable='./simulator-mac'):
+    def __init__(self, instance, executable='simulator'):
         # Get a unique name for the waypoints file, so that we can run multiple instances of the simulator, if we want to.
-        self.waypoints_file = './waypoints-' + str(uuid4())
+        self.waypoints_file = 'waypoints-' + str(uuid4())
         self.command = '{0} {1} {2}'.format(executable, self.waypoints_file, instance).split()
 
     def write_waypoints(self, waypoints):
