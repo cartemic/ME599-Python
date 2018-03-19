@@ -2,7 +2,7 @@
 
 
 from simulator import Simulator
-from optimizer import optimize
+from opt_test import optimize
 from threading import Thread, Lock
 from time import sleep
 
@@ -15,6 +15,8 @@ waypoint_lock = Lock()
 def record_waypoints(waypoints):
     global best_waypoints
     global waypoint_lock
+    
+    print waypoints
 
     with waypoint_lock:
         best_waypoints = waypoints[:]
@@ -36,9 +38,10 @@ if __name__ == '__main__':
 
     # Give the other code some time to work.
     # We will almost certainly give you more than 1 second.
-    sleep(1)
+    sleep(10)
     with waypoint_lock:
         best_guess = best_waypoints[:]
+        print best_guess
         is_done = True
 
     print 'Baseline cost:', baseline_cost

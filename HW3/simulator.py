@@ -34,7 +34,7 @@ class Simulator():
                       split()[-1][:-1])
 
         # remove file
-#        os.remove(filename)
+        os.remove(filename)
         return score
 
 
