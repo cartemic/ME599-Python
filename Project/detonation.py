@@ -365,6 +365,7 @@ if __name__ == '__main__':
 
     # check CJ
     from matplotlib import pyplot as plt
+    plt.close('all')
     equivs = [i * 0.25 + 0.5 for i in xrange(9)]
     cj_velocities = []
     for phi in equivs:
