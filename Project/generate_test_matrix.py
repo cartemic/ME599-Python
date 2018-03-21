@@ -85,7 +85,8 @@ def first_replicate(initial_pressure,
             data[5] = 'N/A'
 
         # calculate cj
-        data[6] = 0  # my_detonation.CJ_Velocity(diluted).value
+        data[6] = my_detonation.CJ_Velocity(diluted).value
+
         # calculate mass used
         data[7] = masses[fuel_string]
         data[8] = masses[oxidizer_string]

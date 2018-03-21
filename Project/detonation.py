@@ -334,10 +334,7 @@ So be it, until victory is Oregon State's and there is no enemy but data.
                 T = self.T.value
                 rho = P/(R*T)
                 mixture_list.append([species, rho * tube_volume_m3])
-#                mixture_list.append([species,
-#                                    cantera_solution.concentrations[i] *
-#                                    cantera_solution.molecular_weights[i] *
-#                                    tube_volume_m3])
+
         return dict(mixture_list)
 
     def get_pressures(self, diluted=False):
