@@ -329,15 +329,10 @@ So be it, until victory is Oregon State's and there is no enemy but data.
         mixture_list = []
         for i, species in enumerate(cantera_solution.species_names):
             if cantera_solution.X[i] > 0:
-                R = 8314 / cantera_solution.molecular_weights[i]
-                P = self.P.value * cantera_solution.X[i]
-                T = self.T.value
-                rho = P/(R*T)
-                mixture_list.append([species, rho * tube_volume_m3])
-#                mixture_list.append([species,
-#                                    cantera_solution.concentrations[i] *
-#                                    cantera_solution.molecular_weights[i] *
-#                                    tube_volume_m3])
+                mixture_list.append([species,
+                                    cantera_solution.concentrations[i] *
+                                    cantera_solution.molecular_weights[i] *
+                                    tube_volume_m3])
         return dict(mixture_list)
 
     def get_pressures(self, diluted=False):
@@ -359,46 +354,6 @@ So be it, until victory is Oregon State's and there is no enemy but data.
 
 
 if __name__ == '__main__':
-    T = Temperature(20, 'C')
+    T = Temperature(70, 'F')
     P = Pressure(1, 'atm')
     test = Detonation(P, T, 'H2', 'O2')
-
-    # check CJ
-    from matplotlib import pyplot as plt
-    equivs = [i * 0.25 + 0.5 for i in xrange(9)]
-    cj_velocities = []
-    for phi in equivs:
-        # stoich:
-        # H2 + 0.5(O2 + 3.76N2) -> H2O + (3.76/2)N2
-        # phi = (F/A)/(F/A)st = (A/F)st/(A/F)
-        # A/F = (A/F)st / phi = (0.5/1) / phi
-        mols_H2 = 1.
-        mols_O2 = 0.5 / phi
-        mols_N2 = 0.5 / phi * 3.76
-        gases = 'H2: {0} O2: {1} N2: {2}'.format(mols_H2, mols_O2, mols_N2)
-        [cj, _] = sd.CJspeed(P.to_Pa().value,
-                             T.to_Kelvin().value,
-                             gases,
-                             'gri30.cti',
-                             0)
-        cj_velocities.append(cj)
-
-    # load in plot from cicarelli and dorofeev
-    cj_plot = plt.imread('cj_speeds_original.png')
-
-    # I don't want to have to re-use ginput every run, just copy and paste
-    # image coordinates here
-    image_coords = [(121.81653225806453, 420.03002016129028),
-                    (654.875, 30.42921370967747)]
-
-    # shift calculated values to where they should be on the imported plot
-    phi2 = [phi/3. * (image_coords[1][0]-image_coords[0][0]) +
-            image_coords[0][0] for phi in equivs]
-    cj2 = [v/2500 * (image_coords[1][1]-image_coords[0][1]) +
-           image_coords[0][1] for v in cj_velocities]
-
-    # overlay calculated cj velocities
-    plt.imshow(cj_plot)
-    plt.plot(phi2, cj2, 'rx')
-    plt.axis('off')
-    plt.savefig('cj_speeds.png')

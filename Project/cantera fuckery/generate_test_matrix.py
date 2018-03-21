@@ -77,6 +77,15 @@ def first_replicate(initial_pressure,
         # pressures for each component.
         pressures = my_detonation.get_pressures(diluted)
         masses = my_detonation.get_mass(tube_volume_m3, diluted)
+        if current_diluent == 'AR' and equivalence == 1 and mf == 0.2:
+            print masses
+            print my_detonation.diluted.mole_fraction_dict()
+            print tube_volume_m3, diluted
+            for i, species in enumerate(my_detonation.diluted.species_names):
+                if my_detonation.diluted.X[i] > 0:
+                    print species
+                    print '    conx:', my_detonation.diluted.concentrations[i]
+                    print '      mw:', my_detonation.diluted.molecular_weights[i]
         data[3] = pressures[fuel_string]
         data[4] = data[3] + pressures[oxidizer_string]
         try:
@@ -96,7 +105,8 @@ def first_replicate(initial_pressure,
         # put into sheet
         df.add_row(data)
     sys.stdout.flush()
-    mp_out.put((call_number, df))
+#    mp_out.put((call_number, df))
+    return (call_number, df)
 
 
 def User_input(user_query, desired_type):
@@ -171,9 +181,7 @@ def Generate(initial_pressure,
             num_diluents = len(diluent_str_list)
             processes = []
             for n in xrange(num_diluents):
-                print '    Starting ', diluent_str_list[n], 'on core', n
-                processes.append(mp.Process(target=first_replicate,
-                                            args=(initial_pressure,
+                processes.append(first_replicate(initial_pressure,
                                                   initial_temperature,
                                                   fuel_string,
                                                   oxidizer_string,
@@ -183,18 +191,31 @@ def Generate(initial_pressure,
                                                   tube_volume_m3,
                                                   df.copy(),
                                                   n,
-                                                  mp_out)))
-                processes[n].start()
-
-            # end parallel processes
-            print
-            for n, p in enumerate(processes):
-                p.join(None)
-                print '    Finished', diluent_str_list[n], 'matrix'
-
-            # collect output
-            diluent_blocks = sorted([mp_out.get() for p in processes])
-            df = pd.concat([block[1] for block in diluent_blocks])
+                                                  mp_out))
+#                print '    Starting ', diluent_str_list[n], 'on core', n
+#                processes.append(mp.Process(target=first_replicate,
+#                                            args=(initial_pressure,
+#                                                  initial_temperature,
+#                                                  fuel_string,
+#                                                  oxidizer_string,
+#                                                  equivalence_list,
+#                                                  diluent_str_list[n],
+#                                                  diluent_mf_list,
+#                                                  tube_volume_m3,
+#                                                  df.copy(),
+#                                                  n,
+#                                                  mp_out)))
+#                processes[n].start()
+#
+#            # end parallel processes
+#            print
+#            for n, p in enumerate(processes):
+#                p.join(None)
+#                print '    Finished', diluent_str_list[n], 'matrix'
+#
+#            # collect output
+#            diluent_blocks = sorted([mp_out.get() for p in processes])
+#            df = pd.concat([block[1] for block in diluent_blocks])
 
         else:
             # randomize first dataframe
