@@ -13,6 +13,33 @@ from scipy import interpolate as spi
 from scipy import optimize as spo
 import multiprocessing as mp
 import os
+import subprocess
+from uuid import uuid4
+import types
+
+
+# force simulator to evaluate correctly with multiple cores
+def my_evaluate(self, waypoints):
+        self.instance = int(self.command[2])
+        filename = 'waypoints-' + str(uuid4())
+
+        # output waypoints
+        with open(filename, 'w') as f:
+            for i in xrange(len(waypoints)):
+                f.write(str(waypoints[i][0]) +
+                        ' ' +
+                        str(waypoints[i][1]) +
+                        '\n')
+
+        # evaluate score
+        score = float(subprocess.check_output(['simulator',
+                                               filename,
+                                               str(self.instance)]).
+                      split()[-1][:-1])
+
+        # remove file
+        os.remove(filename)
+        return score
 
 
 # make shared-memory array for multiprocessing
@@ -40,23 +67,10 @@ def line(x, m, sim, best_score, waypoints_mid, record_waypoints):
     return score
 
 
-def random_optimizer(sim, best_score, waypoints_mid, record_waypoints, done):
-    while not done.value:
-        # find some random points
-        x = np.random.uniform(20) - 10.
-        y = np.random.uniform(20) - 10.
-        my_points = add_point([x, y])
-        score = sim.evaluate(my_points)
-
-        # update current values if they are good
-        if score < best_score.value:
-            best_score.value = score
-            waypoints_mid[0] = x
-            waypoints_mid[1] = y
-            record_waypoints(my_points)
-
-
 def spline_optimizer(m, sim, best_score, waypoints_mid, record_waypoints):
+    # use my evaluate function so that multiprocessing doesn't break stuff
+    sim.evaluate = types.MethodType(my_evaluate, sim)
+
     # define number of points to sample and x range
     num_line_points = 10
     x_max = min(10, abs(10./m))
@@ -90,7 +104,6 @@ def spline_optimizer(m, sim, best_score, waypoints_mid, record_waypoints):
 def optimize(sim, record_waypoints, done):
     # define a shared value for the best score and done() output
     best_score = mp.Value('d', sim.evaluate(add_point([0, 0])))
-    shared_done = mp.Value('i', 0)
 
     # figure out how many cores are available
     num_cores = mp.cpu_count()
@@ -101,22 +114,14 @@ def optimize(sim, record_waypoints, done):
     #    spline optimizer) and a location of minimum score will be estimated.
     slopes = np.tan(np.linspace(np.pi/4, 9*np.pi/4, 16)[:-1])
 
-    # make a process for the dumb optimizer, just in case it performs well
-    processes = [mp.Process(target=random_optimizer,
-                            args=[sim,
+    # make a process for running the spline optimizer on each slope
+    processes = [mp.Process(target=spline_optimizer,
+                            args=[m,
+                                  sim,
                                   best_score,
                                   waypoints_mid,
-                                  record_waypoints,
-                                  shared_done])]
-
-    # make a process for running the spline optimizer on each slope
-    processes += [mp.Process(target=spline_optimizer,
-                             args=[m,
-                                   sim,
-                                   best_score,
-                                   waypoints_mid,
-                                   record_waypoints])
-                  for m in slopes]
+                                  record_waypoints])
+                 for m in slopes]
 
     # add an attribute to each process to figure out whether it is open. This
     # is used to open a new process only when a new core becomes available.
@@ -134,9 +139,9 @@ def optimize(sim, record_waypoints, done):
         record_waypoints(add_point(waypoints_mid[:]))
 
         # decide whether or not to join the process and open a new one
-        for i, p in enumerate(processes):
+        for p in processes:
             open_new = False
-            if i != 0 and p.is_open is True and p.is_alive() is False:
+            if p.is_open is True and p.is_alive() is False:
                 p.join()
                 open_new = True
 
@@ -149,9 +154,6 @@ def optimize(sim, record_waypoints, done):
                     processes[index[0]].start()
                     open_new = False
 
-    # end random point guesser
-    shared_done.value = 1
-
     # clean up processes
     [p.terminate() for p in processes if p.is_alive()]
 
@@ -160,5 +162,5 @@ def optimize(sim, record_waypoints, done):
         if 'waypoints-' in f:
             try:
                 os.remove(f)
-            except WindowsError:
+            except (OSError, IOError):
                 pass

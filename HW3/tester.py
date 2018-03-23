@@ -26,8 +26,8 @@ def done():
 
 
 if __name__ == '__main__':
-    instance = 8
-    time = 3
+    instance = 10
+    time = 8
     s = Simulator(instance)
 
     baseline_cost = s.evaluate([(-10, -10), (10, 10)])
